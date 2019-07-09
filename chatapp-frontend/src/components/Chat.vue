@@ -189,10 +189,6 @@
 
 	
   </div>
-   <!-- <div id="demo">
-        <div v-show="active">Show</div>
-        <div @mouseover="mouseOver">Hover over me!</div>
-    </div> -->
 
 </div>
 
@@ -204,7 +200,6 @@ const $ = window.jQuery
 export default {
   data () {
     return {
-	  labelPosition: 'inside',
       messages: [],
 	  message: '',
       chat_sessions: [],
@@ -251,9 +246,6 @@ export default {
         }
     })
     this.getChatGroup()
-    // if (this.$route.params.uri) {
-    //   this.joinChatSession()
-    // }
 	
 	setInterval(this.fetchChatSessionHistory, 3000)
 	setInterval(this.getChatGroup, 3000)
@@ -355,10 +347,6 @@ export default {
         type: 'PATCH',
         success: (data) => {
 			this.getChatGroup()
-        //   if (user) {
-        //     // The user belongs/has joined the session
-        //     this.fetchChatSessionHistory()
-        //   }
         }
       })
 	}
@@ -368,9 +356,7 @@ export default {
 
 
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-/*---------chat window---------------*/
 #app{
 	margin: 0 0 0 0;
 }

@@ -21,6 +21,8 @@ class ChatSessionView(APIView):
 
         username = request.user.username
         user = User.objects.get(username=username)
+
+        #----------------------------------------------------------Chats where i am owner--------------------------------------------------------------------
         chat_session_all = ChatSession.objects.filter(owner=user)
         
         # Add uri of chat
@@ -29,13 +31,14 @@ class ChatSessionView(APIView):
                 for chat_session_uri in chat_session_all
             ]
 
-
+        #Add usernames of latest message
         usernames = []
         for chat in chat_session_all:
             if (len(chat.messages.all())>0):
                 usernames.append(chat.messages.all().latest('create_date').user.username)
             else:
                 usernames.append('')
+
         # Add last message of chat
         last_message = []
         for chat_session_uri in chat_session_all:
@@ -44,7 +47,7 @@ class ChatSessionView(APIView):
             else:
                 last_message.append('')
 
-
+        # count unread messages
         counter = 0
         counter_messages = []
         for chat_session_uri in chat_session_all:
@@ -55,7 +58,7 @@ class ChatSessionView(APIView):
                 counter_messages.append(counter)
             else:
                 counter_messages.append(0)
-        # Add status of message
+        # Add status of last message
         status = []
         for chat_session_uri in chat_session_all:
             if (len(chat_session_uri.messages.all())>0):
@@ -71,7 +74,7 @@ class ChatSessionView(APIView):
                 for members in chat.members.all():
                     chat_titles.append(members.user.username)
 
-
+        # Add send date of messages
         created_date = []
 
         
@@ -88,11 +91,11 @@ class ChatSessionView(APIView):
         chats = zip(chat_sessions, chat_titles, last_message, status, usernames,counter_messages,created_date)
         
 
-        #Chats where i am guest
+        #-------------------------------------------Chats where i am guest---------------------------------------------------
 
         chat_session_all = ChatSessionMember.objects.filter(user=user)
         
-        
+        #Add usernames of latest message
         usernames_guest = []
         
         for chat in chat_session_all:
@@ -129,7 +132,7 @@ class ChatSessionView(APIView):
             else:
                 chat_titles_guest.append(chat.chat_session.owner.username)
 
-
+        #Add date of latest message
         created_date_guest = []
         
         for chat in chat_session_all:
@@ -142,7 +145,7 @@ class ChatSessionView(APIView):
             else:
                 created_date_guest.append('')
 
-
+        # count unread messages
         counter_guest = 0
         counter_messages_guest = []
         for chat in chat_session_all:
@@ -156,14 +159,11 @@ class ChatSessionView(APIView):
 
         chats_guest = zip(chat_sessions_guest, chat_titles_guest, last_message_guest, status_guest,usernames_guest,counter_messages_guest,created_date_guest)
 
-
-
-
-
         return Response({
             'chat_sessions': chat_sessions, 'chat_titles': chat_titles,'chats': chats,
             'chats_guest': chats_guest
         })
+
 
 
     def post(self, request, *args, **kwargs):
@@ -177,6 +177,8 @@ class ChatSessionView(APIView):
             'message': 'New chat session created'
         })
 
+    
+    
     def patch(self, request, *args, **kwargs):
         """Add a user to a chat session."""
         User = get_user_model()
@@ -225,7 +227,7 @@ class ChatSessionMessageView(APIView):
         messages = [chat_session_message.to_json() 
             for chat_session_message in chat_session.messages.all()]
 
-
+        #Set title for chat (groupname or username)
         username_title = ''
         if (chat_session.title == ''):
             if(user.username == chat_session.owner.username):
@@ -242,6 +244,8 @@ class ChatSessionMessageView(APIView):
             'username_title':username_title,
             'messages': messages 
         })
+
+
 
     def post(self, request, *args, **kwargs):
         """create a new message in a chat session."""
@@ -263,6 +267,7 @@ class ChatSessionMessageView(APIView):
 
 class ChatGroupAddView(APIView):
     def get(self, request, *args, **kwargs):
+        """Get all users """
         User = get_user_model()
 
         users = User.objects.all()
@@ -278,7 +283,7 @@ class ChatGroupAddView(APIView):
         })
 
     def post(self, request, *args, **kwargs):
-        """create a new message in a chat session."""
+        """create a group chat"""
         User = get_user_model()
 
         users = json.loads(request.data['users_list_selected'])
@@ -304,7 +309,7 @@ class ChatGroupAddView(APIView):
         
 
     def patch(self, request, *args, **kwargs):
-        """Add a user to a chat session."""
+        """Change status of message from unread"""
         uri = request.data['chat_uri']
         chat_session = ChatSession.objects.get(uri=uri)
         for message in chat_session.messages.all():
