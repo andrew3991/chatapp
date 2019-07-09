@@ -1,0 +1,6 @@
+venv/
+npm-debug.log
+*.pyc
+*.sqlite3
+.vscode
+node_modules/
