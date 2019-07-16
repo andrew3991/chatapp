@@ -230,7 +230,7 @@ class ChatSessionMessageView(APIView):
         #Set title for chat (groupname or username)
         username_title = ''
         if (chat_session.title == ''):
-            if(user.username == chat_session.owner.username):
+            if(user.username != chat_session.owner.username):
                 username_title = chat_session.owner.username
             else:
                 for members in chat_session.members.all():
